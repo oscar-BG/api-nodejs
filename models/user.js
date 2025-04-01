@@ -28,4 +28,10 @@ const User = sequelize.define('User', {
         allowNull: false,
         defaultValue: 'default.png'
     }
+}, {
+    timestamps : true
 })
+
+
+
+module.exports = User;
