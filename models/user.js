@@ -23,6 +23,10 @@ const User = sequelize.define('User', {
         allowNull: false,
         defaultValue: 'role_user'
     },
+    password : {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
     img : {
         type: DataTypes.STRING(255),
         allowNull: false,

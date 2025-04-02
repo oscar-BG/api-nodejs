@@ -6,7 +6,7 @@ const UserRoutes = require('./routes/user');
 
 (async () => {
     try {
-        await sequelize.sync({ alter: true, force: false });
+        await sequelize.sync({ alter: false, force: false });
         console.log('Database connected successfully');
     } catch (error) {
         console.error(error);
