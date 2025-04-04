@@ -115,7 +115,47 @@ const login = async (req, res) => {
     });
 }
 
+const profile = async (req, res) => {
+    const id = req.params.id;
+
+    if (!id) {
+        return res.status(400).json({
+            status: "error",
+            message: "Faltan datos por enviar"
+        })
+        
+    }
+
+    try {
+        
+        let userJson = await User.findByPk(id, {
+            attributes: ['id', 'name', 'surname', 'nick', 'email', 'img', 'createdAt'],
+        });
+    
+        if (!userJson) {
+            return res.status(404).json({
+                status: "error",
+                message: "Usuario no encontrado"
+            });
+        }
+    
+        return res.status(200).json({
+            status: "success",
+            message: "Usuario encontrado",
+            user: userJson
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            message: "Error en el servidor",
+        })   
+    }
+
+}
+
 module.exports = {
     register,
-    login
+    login,
+    profile
 };

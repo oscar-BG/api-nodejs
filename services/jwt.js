@@ -4,7 +4,7 @@ const moment = require('moment');
 // Clave secreta para codificar el token
 const secret = "90DSMK*d+#SASA_sa434";
 
-exports.createToken = (user) => {
+const createToken = (user) => {
     const payload = {
         id: user.id,
         name: user.name,
@@ -18,4 +18,9 @@ exports.createToken = (user) => {
     }
 
     return jwt.encode(payload, secret);
+}
+
+module.exports = {
+    createToken,
+    secret
 }
