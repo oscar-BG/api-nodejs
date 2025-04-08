@@ -13,5 +13,7 @@ router.get('/private', AuthMiddleware.auth, (req, res) => {
 router.post('/register', UserController.register);
 router.post('/login', UserController.login);
 router.get('/profile/:id', AuthMiddleware.auth, UserController.profile);
+router.get('/list/:page?', AuthMiddleware.auth, UserController.list);
+router.put('/update', AuthMiddleware.auth, UserController.update);
 
 module.exports = router;

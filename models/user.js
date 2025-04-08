@@ -10,6 +10,10 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING(255),
         allowNull: true
     },
+    bio :{
+        type: DataTypes.STRING(255),
+        allowNull: true
+    },
     nick : {
         type: DataTypes.STRING(255),
         allowNull: false
@@ -27,7 +31,7 @@ const User = sequelize.define('User', {
         type: DataTypes.TEXT,
         allowNull: false
     },
-    img : {
+    image : {
         type: DataTypes.STRING(255),
         allowNull: false,
         defaultValue: 'default.png'

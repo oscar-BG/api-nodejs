@@ -72,7 +72,7 @@ const login = async (req, res) => {
 
     // Buscar usuario por email
     let user = await User.findOne({
-        attributes: ['id', 'name', 'surname', 'nick', 'email', 'role', 'img', 'password'],
+        attributes: ['id', 'name', 'surname', 'nick', 'email', 'role', 'image', 'password'],
         where: {
             email: params.email
         }
@@ -109,7 +109,7 @@ const login = async (req, res) => {
             nick: user.nick,
             email: user.email,
             role: user.role,
-            img: user.img
+            image: user.image
         },
         token
     });
@@ -129,7 +129,7 @@ const profile = async (req, res) => {
     try {
         
         let userJson = await User.findByPk(id, {
-            attributes: ['id', 'name', 'surname', 'nick', 'email', 'img', 'createdAt'],
+            attributes: ['id', 'name', 'surname', 'nick', 'email', 'image', 'createdAt'],
         });
     
         if (!userJson) {
@@ -154,8 +154,108 @@ const profile = async (req, res) => {
 
 }
 
+const list = async (req, res) => {
+    let page = req.params.page ? parseInt(req.params.page) : 1;
+    let itemsPerPage = 5;
+
+    let offset = (page - 1) * itemsPerPage;
+    console.log(offset);
+    let total = await User.count();
+
+    let totalPages = Math.ceil(total / itemsPerPage);
+    if (page > totalPages || page <= 0) {
+        return res.status(404).json({
+            status: "error",
+            message: "No hay usuarios para mostrar"
+        });
+    }
+    let users = await User.findAll({
+        attributes: ['id', 'name', 'surname', 'nick', 'email', 'role', 'image'],
+        limit: itemsPerPage,
+        offset: offset,
+        order: [
+            ['id', 'ASC']
+        ]
+    });
+
+    return res.status(200).json({
+        status: "success",
+        message: "Listado de usuarios",
+        users: users,
+        page: page,
+        total: total,
+        totalPages: totalPages,
+        itemsPerPage: itemsPerPage
+    });
+}
+
+const update = async (req, res) => {
+
+    let user_identity = req.user;
+    let user_to_update = req.body;
+    delete user_identity.iat;
+    delete user_identity.exp;
+    delete user_identity.role;
+    delete user_identity.image;
+
+    try {
+        
+        let find_users = await User.findAll({
+            attributes: ['id', 'email', 'nick'],
+            where : {
+                [Op.or] : [{email: req.body.email}, {nick: req.body.nick}]
+            }
+        });
+
+        let user_isset = false;
+        find_users.forEach(user => {
+            if (user.dataValues.id != user_identity.id) {
+                user_isset = true;
+            }
+        });
+    
+        if (user_isset) {
+            return res.status(400).json({
+                status: "error",
+                message: "El email o el nick ya existe"
+            })
+        }
+
+        if (user_to_update.password) {
+            let pwd = await bcrypt.hash(user_to_update.password, 10);
+            user_to_update.password = pwd;
+        }
+
+        await User.update(user_to_update, {
+            where: {
+                id: user_identity.id
+            }
+        });
+
+        let user_update = await User.findByPk(user_identity.id, {
+            attributes: ['id', 'name', 'surname', 'nick', 'email', 'role', 'image'],
+        });
+        
+    
+        return res.status(200).json({
+            status: "success",
+            message: "Actualizar usuario",
+            user: user_update
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            status: "error",
+            message: "Error en el servidor",
+        });
+    }
+
+}
 module.exports = {
     register,
     login,
-    profile
+    profile,
+    list,
+    update
 };
