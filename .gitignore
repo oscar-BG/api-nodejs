@@ -17,3 +17,6 @@ coverage/
 *.env.production.local
 .idea/
 Thumbs.db
+
+# Imagenes
+uploads/avatars/

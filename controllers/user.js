@@ -2,6 +2,7 @@ const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwtS = require('../services/jwt');
 const User = require('../models/user');
+const { use } = require('../routes/user');
 
 // Registros de usuarios
 const register = async (req, res) => {
@@ -252,10 +253,22 @@ const update = async (req, res) => {
     }
 
 }
+
+const upload = (req, res) => {
+    return res.status(200).json({
+        status: "success",
+        message: "Imagen subida",
+        user: req.user,
+        file: req.file
+    });
+}
+
+
 module.exports = {
     register,
     login,
     profile,
     list,
-    update
+    update,
+    upload
 };
