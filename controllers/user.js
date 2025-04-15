@@ -2,7 +2,8 @@ const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwtS = require('../services/jwt');
 const User = require('../models/user');
-const { use } = require('../routes/user');
+const path = require('path');
+const fs = require('fs');
 
 // Registros de usuarios
 const register = async (req, res) => {
@@ -254,13 +255,54 @@ const update = async (req, res) => {
 
 }
 
-const upload = (req, res) => {
-    return res.status(200).json({
-        status: "success",
-        message: "Imagen subida",
-        user: req.user,
-        file: req.file
-    });
+const upload = async (req, res) => {
+
+    if (!req.file) {
+        return res.status(400).json({
+            status: "error",
+            message: "No se ha subido la imagen"
+        });
+    }
+
+    try {
+        let image = req.file.originalname;
+        let extencion = path.extname(image).toLowerCase();
+        let valid_ext = ['.png', '.jpg', '.jpeg'];
+        if (!valid_ext.includes(extencion)) {
+    
+            const file_path = req.file.path;
+            fs.unlinkSync(file_path)
+    
+            return res.status(400).json({
+                status: "error",
+                message: "La extension no es valida",
+            });
+        }
+    
+        await User.update({
+            image: req.file.filename
+        }, {
+            where: {
+                id: req.user.id
+            }
+        });
+    
+        let user_update = await User.findByPk(req.user.id, {
+            attributes: ['id', 'name', 'surname', 'nick', 'email', 'role', 'image'],
+        });
+    
+        return res.status(200).json({
+            status: "success",
+            message: "Imagen subida",
+            user: user_update,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            message: "Error en el servidor",
+        });
+    }
+
 }
 
 

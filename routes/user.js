@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -10,7 +11,8 @@ const storage = multer.diskStorage({
         cb(null, './uploads/avatars/');
     },
     filename: (req, file, cb) => {
-        cb(null, "avatar_" + Date.now() + "_" + file.originalname);
+        const name_file = "avatar_" + Date.now() + "_" + Math.round(Math.random() * 1E9) + path.extname(file.originalname);
+        cb(null, name_file);
     }
 });
 
