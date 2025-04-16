@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const sequelize = require('./database/connection');
 const UserRoutes = require('./routes/user');
+const FollowRoutes =  require('./routes/follow');
 
 
 (async () => {
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 app.use('/api/users', UserRoutes);
+app.use('/api/follow', FollowRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on url http://localhost:${PORT}`);
