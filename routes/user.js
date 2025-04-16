@@ -31,5 +31,6 @@ router.get('/profile/:id', AuthMiddleware.auth, UserController.profile);
 router.get('/list/:page?', AuthMiddleware.auth, UserController.list);
 router.put('/update', AuthMiddleware.auth, UserController.update);
 router.post('/upload', [AuthMiddleware.auth, uploads.single("file0")], UserController.upload);
+router.get('/avatar/:file', AuthMiddleware.auth, UserController.avatar);
 
 module.exports = router;

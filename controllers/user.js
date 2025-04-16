@@ -305,6 +305,24 @@ const upload = async (req, res) => {
 
 }
 
+const avatar = (req, res) => {
+
+    const file = req.params.file;
+
+    const file_path = './uploads/avatars/' + file;
+    fs.stat(file_path, (err, exists) => {
+        if (err || !exists) {
+            return res.status(404).json({
+                status: "error",
+                message: "La imagen no existe"
+            });
+        }
+
+        return res.sendFile(path.resolve(file_path));
+
+    });
+}
+
 
 module.exports = {
     register,
@@ -312,5 +330,6 @@ module.exports = {
     profile,
     list,
     update,
-    upload
+    upload,
+    avatar
 };
