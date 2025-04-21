@@ -27,6 +27,35 @@ const save = async (req, res) => {
     }
 }
 
+const unFollow = async (req, res) => {
+    const userId = req.user.id;
+    const userToUnfollowId = req.params.id;
+
+    try {
+
+        const userToUnFollow = await Follow.destroy({
+            where: {
+                user_id: userId,
+                followed_id: userToUnfollowId,
+            }
+        });
+
+        return res.status(200).json({
+            status: "success",
+            message: "Unfollow guardado",
+            identity : req.user,
+            userToUnFollow : userToUnFollow,
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            message: "Error en el servidor",
+        })
+        
+    }
+}
+
 module.exports = {
-    save
+    save,
+    unFollow
 }
