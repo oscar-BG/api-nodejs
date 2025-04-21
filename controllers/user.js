@@ -256,7 +256,7 @@ const update = async (req, res) => {
 }
 
 const upload = async (req, res) => {
-
+    console.log(req.file);
     if (!req.file) {
         return res.status(400).json({
             status: "error",
