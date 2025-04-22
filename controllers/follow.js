@@ -55,7 +55,53 @@ const unFollow = async (req, res) => {
     }
 }
 
+const following = async (req, res) => {
+
+    const page = req.params.page ? req.params.page : 1;
+    const itemsPerPage = 5;
+    const offset = (page - 1) * itemsPerPage;
+    const userId = req.params.id ? req.params.id : req.user.id;
+
+    const listFollowing = await Follow.findAll({
+        include: [
+            {
+                model: User,
+                as: 'followed',
+                required: true,
+                attributes: ['id', 'name', 'surname', 'nick', 'email', 'image'],
+            },
+            {
+                model: User,
+                as: 'follower',
+                required: true,
+                attributes: ['id', 'name', 'surname', 'nick', 'email', 'image'],
+            }
+        ],
+        where: {
+            user_id: userId
+        },
+        attributes: ['id', 'user_id', 'followed_id']
+    });
+
+
+    return res.status(200).json({
+        status: "success",
+        message: "Listado de usuarios que estoy siguiendo",
+        following: listFollowing,
+    });
+}
+
+const followers = async (req, res) => {
+    return res.status(200).json({
+        status: "success",
+        message: "Listado de usuarios que me siguen",
+    });
+}
+
+
 module.exports = {
     save,
-    unFollow
+    unFollow,
+    following,
+    followers,
 }
