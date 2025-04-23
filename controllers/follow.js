@@ -62,33 +62,56 @@ const following = async (req, res) => {
     const offset = (page - 1) * itemsPerPage;
     const userId = req.params.id ? req.params.id : req.user.id;
 
-    const listFollowing = await Follow.findAll({
-        include: [
-            {
-                model: User,
-                as: 'followed',
-                required: true,
-                attributes: ['id', 'name', 'surname', 'nick', 'email', 'image'],
-            },
-            {
-                model: User,
-                as: 'follower',
-                required: true,
-                attributes: ['id', 'name', 'surname', 'nick', 'email', 'image'],
+    try {
+
+        const total = await Follow.count({
+            where: {
+                user_id: userId
             }
-        ],
-        where: {
-            user_id: userId
-        },
-        attributes: ['id', 'user_id', 'followed_id']
-    });
+        });
 
+        const listFollowing = await Follow.findAll({
+            include: [
+                {
+                    model: User,
+                    as: 'followed',
+                    required: true,
+                    attributes: ['id', 'name', 'surname', 'nick', 'email', 'image'],
+                },
+                {
+                    model: User,
+                    as: 'follower',
+                    required: true,
+                    attributes: ['id', 'name', 'surname', 'nick', 'email', 'image'],
+                }
+            ],
+            where: {
+                user_id: userId
+            },
+            attributes: ['id', 'user_id', 'followed_id'],
+            limit: itemsPerPage,
+            offset: offset,
+            order: [['id', 'DESC']]
+        });
+    
+    
+        return res.status(200).json({
+            status: "success",
+            message: "Listado de usuarios que estoy siguiendo",
+            following: listFollowing,
+            total: total,
+            page: page,
+            items: itemsPerPage,
+            pages : Math.ceil(total / itemsPerPage)
+        });
 
-    return res.status(200).json({
-        status: "success",
-        message: "Listado de usuarios que estoy siguiendo",
-        following: listFollowing,
-    });
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            message: "Error en el servidor",
+        })
+    }
+
 }
 
 const followers = async (req, res) => {
