@@ -4,6 +4,7 @@ const jwtS = require('../services/jwt');
 const User = require('../models/user');
 const path = require('path');
 const fs = require('fs');
+const FollowService = require('../services/followService');
 
 // Registros de usuarios
 const register = async (req, res) => {
@@ -140,11 +141,14 @@ const profile = async (req, res) => {
                 message: "Usuario no encontrado"
             });
         }
+
+        const follow_info = await FollowService.followThisUser(req.user.id, id);
     
         return res.status(200).json({
             status: "success",
             message: "Usuario encontrado",
-            user: userJson
+            user: userJson,
+            following: follow_info.following ? follow_info.following : false,
         });
 
     } catch (error) {
@@ -180,6 +184,8 @@ const list = async (req, res) => {
         ]
     });
 
+    let followUserIds = await FollowService.followUserIds(req.user.id);
+
     return res.status(200).json({
         status: "success",
         message: "Listado de usuarios",
@@ -187,7 +193,10 @@ const list = async (req, res) => {
         page: page,
         total: total,
         totalPages: totalPages,
-        itemsPerPage: itemsPerPage
+        itemsPerPage: itemsPerPage,
+        pages : Math.ceil(total / itemsPerPage),
+        user_following: followUserIds.following,
+        user_following_me: followUserIds.followers
     });
 }
 

@@ -1,5 +1,6 @@
 const Follow = require('../models/follow');
 const User = require('../models/user');
+const FollowService = require('../services/followService');
 
 const save = async (req, res) => {
 
@@ -93,6 +94,10 @@ const following = async (req, res) => {
             offset: offset,
             order: [['id', 'DESC']]
         });
+
+
+        console.log("Lista de usuarios que sigo");
+        let followUserIds = await FollowService.followUserIds(req.user.id);
     
     
         return res.status(200).json({
@@ -102,7 +107,9 @@ const following = async (req, res) => {
             total: total,
             page: page,
             items: itemsPerPage,
-            pages : Math.ceil(total / itemsPerPage)
+            pages : Math.ceil(total / itemsPerPage),
+            userFollowIds: followUserIds.following,
+            userFolloweMe: followUserIds.followers,
         });
 
     } catch (error) {
@@ -115,10 +122,66 @@ const following = async (req, res) => {
 }
 
 const followers = async (req, res) => {
-    return res.status(200).json({
-        status: "success",
-        message: "Listado de usuarios que me siguen",
-    });
+    const page = req.params.page ? req.params.page : 1;
+    const itemsPerPage = 5;
+    const offset = (page - 1) * itemsPerPage;
+    const userId = req.params.id ? req.params.id : req.user.id;
+
+    try {
+
+        const total = await Follow.count({
+            where: {
+                user_id: userId
+            }
+        });
+
+        const listFollowing = await Follow.findAll({
+            include: [
+                {
+                    model: User,
+                    as: 'followed',
+                    required: true,
+                    attributes: ['id', 'name', 'surname', 'nick', 'email', 'image'],
+                },
+                {
+                    model: User,
+                    as: 'follower',
+                    required: true,
+                    attributes: ['id', 'name', 'surname', 'nick', 'email', 'image'],
+                }
+            ],
+            where: {
+                user_id: userId
+            },
+            attributes: ['id', 'user_id', 'followed_id'],
+            limit: itemsPerPage,
+            offset: offset,
+            order: [['id', 'DESC']]
+        });
+
+
+        console.log("Lista de usuarios que sigo");
+        let followUserIds = await FollowService.followUserIds(req.user.id);
+    
+    
+        return res.status(200).json({
+            status: "success",
+            message: "Listado de usuarios que estoy siguiendo",
+            following: listFollowing,
+            total: total,
+            page: page,
+            items: itemsPerPage,
+            pages : Math.ceil(total / itemsPerPage),
+            userFollowIds: followUserIds.following,
+            userFolloweMe: followUserIds.followers,
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            message: "Error en el servidor",
+        })
+    }
 }
 
 
