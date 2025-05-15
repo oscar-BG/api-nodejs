@@ -1,11 +1,70 @@
 const Publication = require('../models/publication');
 
 const save = async (req, res) => {
-    return res.status(200).json({
-        message: 'save publication'
-    });
+    let params = req.body;
+
+    if (!params.text) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'No se ha enviado el texto de la publicación'
+        });
+    }
+
+    try {
+        let newPublication = await Publication.create({text: params.text, user_id: req.user.id})
+        return res.status(200).json({
+            status: 'success',
+            publication: newPublication,
+            message: 'save publication'
+        });
+        
+    } catch (error) {
+        return res.status(500).json({
+            status: 'error',
+            message: 'Error al guardar la publicación',
+            error: error
+        });        
+    }
+}
+
+const detail = async (req, res) => {
+
+    const publication_id = req.params.id;
+    if (!publication_id || isNaN(publication_id)) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'No se ha enviado el id de la publicación'
+        });
+    }
+
+    try {
+        let publication = await Publication.findByPk(publication_id, {
+            attributes: ['id', 'text', 'createdAt'],
+        })
+
+        if (!publication) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'No se ha encontrado la publicación'
+            });
+        }
+
+        return res.status(200).json({
+            status: 'success',
+            publication: publication,
+            message: 'Información de la publicación',
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 'error',
+            message: 'Error al obtener la publicación',
+            error: error
+        });
+    }
+    
 }
 
 module.exports = {
-    save
+    save,
+    detail
 }

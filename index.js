@@ -26,6 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/users', UserRoutes);
 app.use('/api/follow', FollowRoutes);
+app.use('/api/publication', PublicationRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server is running on url http://localhost:${PORT}`);
