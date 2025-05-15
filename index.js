@@ -3,6 +3,7 @@ const cors = require('cors');
 const sequelize = require('./database/connection');
 const UserRoutes = require('./routes/user');
 const FollowRoutes =  require('./routes/follow');
+const PublicationRoutes = require('./routes/publication');
 
 
 (async () => {
