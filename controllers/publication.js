@@ -1,5 +1,7 @@
 const Publication = require('../models/publication');
 const User = require('../models/user');
+const path = require('path');
+const fs = require('fs');
 
 const save = async (req, res) => {
     let params = req.body;
@@ -174,13 +176,72 @@ const user = async (req, res) => {
         });
         
     }
+}
 
-    
+const upload = async (req, res) => {
+
+    const publication_id = req.params.id;
+    if (!publication_id || isNaN(publication_id)) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'No se ha enviado el id de la publicación'
+        });
+    }
+
+    if (!req.file) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'No se ha subido la imagen'
+        });
+    }
+
+    let image = req.file.originalname;
+    const image_ext = path.extname(image).toLowerCase();
+    const valid_ext = ['.png', '.jpg', '.jpeg'];
+
+    if (!valid_ext.includes(image_ext)) {
+
+        // Eliminar el archivo subido
+        const file_path = req.file.path;
+        fs.unlinkSync(file_path);
+
+        return res.status(400).json({
+            status: 'error',
+            message: 'La extensión de la imagen no es válida'
+        });
+    }
+
+    try {
+        let update_upblication = await Publication.update({
+            file: req.file.filename
+        }, {
+            where: {
+                user_id: req.user.id,
+                id: publication_id
+
+            }
+        })
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Imagen subida correctamente',
+            publication: update_upblication,
+            file: req.file.filename
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 'error',
+            message: 'Error al subir la imagen',
+            error: error
+        });
+        
+    }
 }
 
 module.exports = {
     save,
     detail,
     remove,
-    user
+    user,
+    upload
 }
