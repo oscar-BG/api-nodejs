@@ -238,10 +238,27 @@ const upload = async (req, res) => {
     }
 }
 
+const media = (req, res) => {
+    const file = req.params.file;
+
+    const file_path = './uploads/publications/' + file;
+    fs.stat(file_path, (err, stat) => {
+        if (err || !stat.isFile()) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'No se ha encontrado el archivo'
+            });
+        }
+
+        return res.sendFile(path.resolve(file_path));
+    });
+}
+
 module.exports = {
     save,
     detail,
     remove,
     user,
-    upload
+    upload,
+    media
 }
