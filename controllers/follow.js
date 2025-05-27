@@ -77,13 +77,13 @@ const following = async (req, res) => {
                     model: User,
                     as: 'followed',
                     required: true,
-                    attributes: ['id', 'name', 'surname', 'nick', 'email', 'image'],
+                    attributes: ['id', 'name', 'surname', 'nick', 'image'],
                 },
                 {
                     model: User,
                     as: 'follower',
                     required: true,
-                    attributes: ['id', 'name', 'surname', 'nick', 'email', 'image'],
+                    attributes: ['id', 'name', 'surname', 'nick', 'image'],
                 }
             ],
             where: {
@@ -141,13 +141,13 @@ const followers = async (req, res) => {
                     model: User,
                     as: 'followed',
                     required: true,
-                    attributes: ['id', 'name', 'surname', 'nick', 'email', 'image'],
+                    attributes: ['id', 'name', 'surname', 'nick', 'image'],
                 },
                 {
                     model: User,
                     as: 'follower',
                     required: true,
-                    attributes: ['id', 'name', 'surname', 'nick', 'email', 'image'],
+                    attributes: ['id', 'name', 'surname', 'nick', 'image'],
                 }
             ],
             where: {

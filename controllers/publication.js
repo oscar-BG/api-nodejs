@@ -147,7 +147,7 @@ const user = async (req, res) => {
                     model: User,
                     as: 'user',
                     required: true,
-                    attributes: ['id', 'name', 'surname', 'nick', 'email']
+                    attributes: ['id', 'name', 'surname', 'nick']
                 }
             ]
         });
