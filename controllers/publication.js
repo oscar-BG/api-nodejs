@@ -2,6 +2,8 @@ const Publication = require('../models/publication');
 const User = require('../models/user');
 const path = require('path');
 const fs = require('fs');
+const FollowService = require('../services/followService');
+const { count } = require('console');
 
 const save = async (req, res) => {
     let params = req.body;
@@ -254,11 +256,64 @@ const media = (req, res) => {
     });
 }
 
+// Listar publicaciones que estamos siguiendo
+const feed = async (req, res) => {
+    
+    let page = 1;
+    let itemsPerPage = 5;
+    if (req.params.page && !isNaN(req.params.page)) {
+        page = req.params.page;
+    }
+
+    try {
+        const myFollows = await FollowService.followUserIds(req.user.id);
+
+        const publications = await Publication.findAndCountAll({
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    required: true,
+                    attributes: ['id', 'name', 'surname', 'nick']
+                }
+            ],
+            where: {
+                user_id: myFollows.following
+            },
+            order: [
+                ['id', 'DESC']
+            ],
+            limit: itemsPerPage,
+            offset: (page - 1) * itemsPerPage
+
+        });
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'feed',
+            myFollows: myFollows.following,
+            publications: publications.rows,
+            count: publications.count,
+            pages: Math.ceil(publications.count / itemsPerPage),
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            status: 'error',
+            message: 'Error al obtener el feed',
+            error: error
+        });
+        
+    }
+    
+}
+
 module.exports = {
     save,
     detail,
     remove,
     user,
     upload,
-    media
+    media,
+    feed
 }
